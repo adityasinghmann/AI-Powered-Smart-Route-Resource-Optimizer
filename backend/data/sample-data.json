@@ -1,0 +1,18 @@
+{
+  "locations": [
+    { "id": "WH", "name": "Warehouse", "lat": 37.7749, "lng": -122.4194, "demand": 0 },
+    { "id": "C1", "name": "Client 1", "lat": 37.7849, "lng": -122.4094, "demand": 3 },
+    { "id": "C2", "name": "Client 2", "lat": 37.7649, "lng": -122.4294, "demand": 4 },
+    { "id": "C3", "name": "Client 3", "lat": 37.7549, "lng": -122.4394, "demand": 2 },
+    { "id": "C4", "name": "Client 4", "lat": 37.7449, "lng": -122.4494, "demand": 5 }
+  ],
+  "vehicles": [
+    { "name": "Van-A", "capacity": 10, "speedKph": 45, "fuelCostPerKm": 0.18 },
+    { "name": "Truck-B", "capacity": 15, "speedKph": 35, "fuelCostPerKm": 0.25 }
+  ],
+  "constraints": {
+    "deadlineHours": 3
+  },
+  "trafficFactor": 1.1,
+  "weatherFactor": 1.05
+}
