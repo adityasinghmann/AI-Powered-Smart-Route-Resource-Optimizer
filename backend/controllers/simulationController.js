@@ -1,4 +1,4 @@
-import { emitRouteUpdate } from '../utils/socket.js';
+import { emitRouteUpdate } from '../utils/events.js';
 
 export function simulateTrafficHandler(req, res) {
   const { trafficFactor = 1.2, weatherFactor = 1.1, message = 'Traffic conditions updated' } = req.body;

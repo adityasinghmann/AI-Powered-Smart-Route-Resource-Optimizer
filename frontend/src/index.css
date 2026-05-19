@@ -1,9 +1,167 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color: #172033;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f4f7fb;
+}
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
   background: #f4f7fb;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(0.96);
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+.app-shell h1 {
+  margin: 0 0 16px;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.2;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgb(23 32 51 / 8%);
+  padding: 16px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.form-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.form-panel label {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.json-input {
+  width: 100%;
+  min-height: 250px;
+  resize: vertical;
+  border: 1px solid #c8d3e1;
+  border-radius: 6px;
+  padding: 10px;
+  font-family: "Consolas", "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.number-grid input {
+  min-width: 0;
+  border: 1px solid #c8d3e1;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 0 14px;
+  font-weight: 700;
+}
+
+.primary-button {
+  background: #2563eb;
+}
+
+.secondary-button {
+  background: #b45309;
+}
+
+.result-column {
+  display: grid;
+  gap: 16px;
+}
+
+.route-map {
+  width: 100%;
+  height: 384px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgb(23 32 51 / 8%);
+  overflow: hidden;
+}
+
+.metric-card {
+  border: 1px solid #dbe3ef;
+  border-radius: 6px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.metric-card p {
+  margin: 4px 0;
+}
+
+.metric-title {
+  font-weight: 700;
+}
+
+.error-message {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #991b1b;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+@media (max-width: 820px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .number-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -20,25 +20,25 @@ export default function OptimizerForm({ vehicles, onOptimize, onSimulateTraffic 
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-xl bg-white p-4 shadow">
-      <h2 className="text-lg font-semibold">Optimization Inputs</h2>
-      <label className="block text-sm font-medium">Locations (JSON)</label>
+    <form onSubmit={submit} className="panel form-panel">
+      <h2>Optimization Inputs</h2>
+      <label>Locations (JSON)</label>
       <textarea
         rows={10}
-        className="w-full rounded border p-2 font-mono text-xs"
+        className="json-input"
         value={locationsText}
         onChange={(e) => setLocationsText(e.target.value)}
       />
-      <div className="grid grid-cols-3 gap-2">
-        <input className="rounded border p-2" type="number" step="0.1" value={deadlineHours} onChange={(e) => setDeadlineHours(e.target.value)} placeholder="Deadline hours" />
-        <input className="rounded border p-2" type="number" step="0.1" value={trafficFactor} onChange={(e) => setTrafficFactor(e.target.value)} placeholder="Traffic factor" />
-        <input className="rounded border p-2" type="number" step="0.1" value={weatherFactor} onChange={(e) => setWeatherFactor(e.target.value)} placeholder="Weather factor" />
+      <div className="number-grid">
+        <input type="number" step="0.1" value={deadlineHours} onChange={(e) => setDeadlineHours(e.target.value)} placeholder="Deadline hours" />
+        <input type="number" step="0.1" value={trafficFactor} onChange={(e) => setTrafficFactor(e.target.value)} placeholder="Traffic factor" />
+        <input type="number" step="0.1" value={weatherFactor} onChange={(e) => setWeatherFactor(e.target.value)} placeholder="Weather factor" />
       </div>
-      <div className="flex gap-2">
-        <button type="submit" className="rounded bg-blue-600 px-3 py-2 text-white">Optimize Route</button>
+      <div className="button-row">
+        <button type="submit" className="primary-button">Optimize Route</button>
         <button
           type="button"
-          className="rounded bg-amber-500 px-3 py-2 text-white"
+          className="secondary-button"
           onClick={() => onSimulateTraffic({ trafficFactor: Number(trafficFactor) + 0.2, weatherFactor: Number(weatherFactor) + 0.1 })}
         >
           Simulate Traffic

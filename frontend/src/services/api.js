@@ -1,23 +1,33 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 15000
-});
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 export async function fetchVehicles() {
-  const { data } = await api.get('/vehicles');
-  return data;
+  return request('/vehicles');
 }
 
 export async function optimizeRoute(payload) {
-  const { data } = await api.post('/optimize-route', payload);
-  return data;
+  return request('/optimize-route', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 }
 
 export async function simulateTraffic(payload) {
-  const { data } = await api.post('/simulate-traffic', payload);
+  return request('/simulate-traffic', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+async function request(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    ...options
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Request failed');
+  }
+
   return data;
 }

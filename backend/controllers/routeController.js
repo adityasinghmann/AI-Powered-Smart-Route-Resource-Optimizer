@@ -1,5 +1,5 @@
 import { optimizeRoute, getStoredRoute } from '../services/optimizerService.js';
-import { emitRouteUpdate } from '../utils/socket.js';
+import { emitRouteUpdate } from '../utils/events.js';
 
 export async function optimizeRouteHandler(req, res, next) {
   try {
@@ -15,7 +15,7 @@ export async function getRouteByIdHandler(req, res, next) {
   try {
     const route = await getStoredRoute(req.params.id);
     if (!route) {
-      return res.status(404).json({ message: 'Route not found or persistence disabled' });
+      return res.status(404).json({ message: 'Route not found' });
     }
     return res.json(route);
   } catch (error) {

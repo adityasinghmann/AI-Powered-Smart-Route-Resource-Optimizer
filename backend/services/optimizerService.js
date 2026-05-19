@@ -1,13 +1,21 @@
-import RoutePlan from '../models/RoutePlan.js';
-import Vehicle from '../models/Vehicle.js';
+import { randomUUID } from 'node:crypto';
 import { buildAdjacencyList } from './algorithms/graph.js';
 import { dijkstra } from './algorithms/dijkstra.js';
 import { aStar } from './algorithms/astar.js';
 import { antColonyTsp } from './algorithms/tsp.js';
 import { getCache, setCache } from '../utils/cache.js';
 
+const DEFAULT_VEHICLES = [
+  { name: 'Van-A', capacity: 12, speedKph: 45, fuelCostPerKm: 0.18 },
+  { name: 'Van-B', capacity: 8, speedKph: 40, fuelCostPerKm: 0.16 }
+];
+
+const storedRoutes = new Map();
+const MAX_STORED_ROUTES = 100;
+
 export async function optimizeRoute(payload) {
-  const { locations, vehicles, constraints = {} } = payload;
+  const { locations, constraints = {} } = payload;
+  const vehicles = payload.vehicles?.length ? payload.vehicles : DEFAULT_VEHICLES;
   const trafficFactor = payload.trafficFactor || 1;
   const weatherFactor = payload.weatherFactor || 1;
 
@@ -33,6 +41,7 @@ export async function optimizeRoute(payload) {
   const estimated = estimateTimings(allocation, adjacency, nodesById, constraints);
 
   const result = {
+    id: `route-${randomUUID()}`,
     generatedAt: new Date().toISOString(),
     routeOrder: orderedStops,
     adjacencyStats: {
@@ -44,10 +53,7 @@ export async function optimizeRoute(payload) {
     estimated
   };
 
-  if (RoutePlan.db?.readyState === 1) {
-    const saved = await RoutePlan.create({ input: payload, output: result });
-    result.id = saved.id;
-  }
+  rememberRoute(result.id, { id: result.id, input: payload, output: result, createdAt: result.generatedAt });
 
   setCache(cacheKey, result, 60000);
   return result;
@@ -119,26 +125,18 @@ function estimateTimings(allocation, adjacency, nodesById, constraints) {
 }
 
 export async function getStoredRoute(id) {
-  if (RoutePlan.db?.readyState !== 1) return null;
-  return RoutePlan.findById(id).lean();
+  return storedRoutes.get(id) || null;
 }
 
 export async function getVehicles() {
-  if (Vehicle.db?.readyState !== 1) {
-    return [
-      { name: 'Van-A', capacity: 12, speedKph: 45, fuelCostPerKm: 0.18 },
-      { name: 'Van-B', capacity: 8, speedKph: 40, fuelCostPerKm: 0.16 }
-    ];
-  }
+  return DEFAULT_VEHICLES;
+}
 
-  const vehicles = await Vehicle.find().lean();
-  if (vehicles.length === 0) {
-    await Vehicle.insertMany([
-      { name: 'Van-A', capacity: 12, speedKph: 45, fuelCostPerKm: 0.18 },
-      { name: 'Van-B', capacity: 8, speedKph: 40, fuelCostPerKm: 0.16 }
-    ]);
-    return Vehicle.find().lean();
-  }
+function rememberRoute(id, route) {
+  storedRoutes.set(id, route);
 
-  return vehicles;
+  if (storedRoutes.size > MAX_STORED_ROUTES) {
+    const oldestId = storedRoutes.keys().next().value;
+    storedRoutes.delete(oldestId);
+  }
 }

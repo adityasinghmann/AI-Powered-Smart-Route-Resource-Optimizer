@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 import OptimizerForm from './components/OptimizerForm';
 import RouteMap from './components/RouteMap';
-import { fetchVehicles, optimizeRoute, simulateTraffic } from './services/api';
-
-const socket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+import { API_BASE_URL, fetchVehicles, optimizeRoute, simulateTraffic } from './services/api';
 
 export default function App() {
   const [vehicles, setVehicles] = useState([]);
@@ -15,12 +12,14 @@ export default function App() {
   useEffect(() => {
     fetchVehicles().then(setVehicles).catch((err) => setError(err.message));
 
-    socket.on('route-updated', (payload) => {
+    const events = new EventSource(`${API_BASE_URL}/events`);
+    events.addEventListener('route-updated', (event) => {
+      const payload = JSON.parse(event.data);
       setUpdates((prev) => [payload, ...prev].slice(0, 5));
     });
 
     return () => {
-      socket.off('route-updated');
+      events.close();
     };
   }, []);
 
@@ -30,43 +29,48 @@ export default function App() {
       const data = await optimizeRoute(payload);
       setResult(data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.message);
     }
   };
 
   const handleSimulate = async (payload) => {
     try {
+      setError('');
       await simulateTraffic(payload);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.message);
     }
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-4">
-      <h1 className="mb-4 text-2xl font-bold">AI-Powered Smart Route & Resource Optimizer</h1>
-      {error && <div className="mb-3 rounded bg-red-100 p-2 text-red-700">{error}</div>}
-      <div className="grid gap-4 lg:grid-cols-2">
+    <div className="app-shell">
+      <h1>AI-Powered Smart Route & Resource Optimizer</h1>
+      {error && <div className="error-message">{error}</div>}
+      <div className="app-grid">
         <OptimizerForm vehicles={vehicles} onOptimize={handleOptimize} onSimulateTraffic={handleSimulate} />
-        <div className="space-y-4">
+        <div className="result-column">
           <RouteMap routeOrder={result?.routeOrder} />
-          <div className="rounded-xl bg-white p-4 shadow">
-            <h2 className="text-lg font-semibold">Optimization Metrics</h2>
+          <section className="panel">
+            <h2>Optimization Metrics</h2>
             <p>Total Stops: {result?.routeOrder?.length || 0}</p>
             <p>Best Tour Length: {result?.tsp?.bestLength?.toFixed?.(2) || '-'}</p>
             {result?.estimated?.map((item) => (
-              <div key={item.vehicle.name} className="mt-2 rounded border p-2">
-                <p className="font-medium">{item.vehicle.name}</p>
+              <div key={item.vehicle.name} className="metric-card">
+                <p className="metric-title">{item.vehicle.name}</p>
                 <p>ETA (h): {item.etaHours.toFixed(2)}</p>
                 <p>Fuel Cost: ${item.fuelCost.toFixed(2)}</p>
-                <p>Stops: {item.stops.map((s) => s.id).join(' → ') || 'None'}</p>
+                <p>Stops: {item.stops.map((s) => s.id).join(' -> ') || 'None'}</p>
               </div>
             ))}
-          </div>
-          <div className="rounded-xl bg-white p-4 shadow">
-            <h2 className="text-lg font-semibold">Real-Time Updates</h2>
-            {updates.length === 0 ? <p>No updates yet.</p> : updates.map((u, index) => <p key={index}>{u.type} @ {u.timestamp || u.generatedAt}</p>)}
-          </div>
+          </section>
+          <section className="panel">
+            <h2>Real-Time Updates</h2>
+            {updates.length === 0 ? (
+              <p>No updates yet.</p>
+            ) : (
+              updates.map((u, index) => <p key={index}>{u.type} @ {u.timestamp || u.generatedAt}</p>)
+            )}
+          </section>
         </div>
       </div>
     </div>
